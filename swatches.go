@@ -32,7 +32,11 @@ func drawSwatches(cols []color.Color, size, numCols int) image.Image {
 }
 
 func DisplaySwatches(cols []color.Color) {
-	DisplayImage(drawSwatches(cols, 100, 8))
+	width := 8
+	if len(cols) < width {
+		width = len(cols)
+	}
+	DisplayImage(drawSwatches(cols, 100, width))
 }
 
 func WriteSwatches(cols []color.Color, filename string) {
