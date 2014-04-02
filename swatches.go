@@ -1,6 +1,7 @@
 package colorshow
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -21,6 +22,12 @@ func drawSwatches(cols []color.Color, size, numCols int) image.Image {
 	log.Println("Creating swatches...")
 	destBounds := image.Rect(0, 0, size*numCols, size*(len(cols)/numCols))
 	destImg := image.NewNRGBA(destBounds)
+
+	// SDL will freak out if we leave some pixels unset, so make everything black initially.
+	// TODO: Instead of black do like a pretty squares pattern.
+	black := color.NRGBA{0, 0, 0, 255}
+	draw.Draw(destImg, destBounds, image.NewUniform(black), destBounds.Min, draw.Src)
+
 	for i, c := range cols {
 		x := (i % numCols) * size
 		y := (i / numCols) * size
@@ -31,11 +38,37 @@ func drawSwatches(cols []color.Color, size, numCols int) image.Image {
 	return destImg
 }
 
-func DisplaySwatches(cols []color.Color) {
-	width := 8
-	if len(cols) < width {
-		width = len(cols)
+func abs(i int) int {
+	if i < 0 {
+		return -i
 	}
+	return i
+}
+
+// badFactorize attempts to find a factor of i that makes for a square-ish grid. It is bad
+// because the algorithm used is really bad and if I wasn't sick I'd make it better.
+func badFactorize(i int) int {
+	bestCandidate := 1
+	// 'Score' here is the difference between the width and height. Low is good.
+	bestScore := i
+	for candidate := 1; candidate <= i/2; candidate++ {
+		fmt.Printf("c: %v i: %v\n", candidate, i)
+		if i%candidate != 0 {
+			continue
+		}
+		width, height := candidate, i/candidate
+		score := abs(width - height)
+		fmt.Printf("c: %v %v, best: %v %v\n", candidate, score, bestCandidate, bestScore)
+		if score < bestScore {
+			bestCandidate = candidate
+			bestScore = score
+		}
+	}
+	return i / bestCandidate
+}
+
+func DisplaySwatches(cols []color.Color) {
+	width := badFactorize(len(cols))
 	DisplayImage(drawSwatches(cols, 100, width))
 }
 
