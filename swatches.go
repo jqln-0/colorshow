@@ -1,7 +1,6 @@
 package colorshow
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -52,13 +51,11 @@ func badFactorize(i int) int {
 	// 'Score' here is the difference between the width and height. Low is good.
 	bestScore := i
 	for candidate := 1; candidate <= i/2; candidate++ {
-		fmt.Printf("c: %v i: %v\n", candidate, i)
 		if i%candidate != 0 {
 			continue
 		}
 		width, height := candidate, i/candidate
 		score := abs(width - height)
-		fmt.Printf("c: %v %v, best: %v %v\n", candidate, score, bestCandidate, bestScore)
 		if score < bestScore {
 			bestCandidate = candidate
 			bestScore = score
